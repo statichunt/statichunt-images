@@ -1,7 +1,7 @@
 import fs from "fs";
-// import themes from "../.json/themes-name.json" assert { type: "json" };
+import path from "path";
 
-const folderPath = "/themes/";
+const imagesFolder = path.join(process.cwd(), "/themes/");
 
 // fetch themes
 const getThemes = await fetch("https://statichunt.com/data/themes.json")
@@ -10,7 +10,7 @@ const getThemes = await fetch("https://statichunt.com/data/themes.json")
 
 const themes = getThemes.map((data) => data.slug);
 
-fs.readdir(folderPath, (err, files) => {
+fs.readdir(imagesFolder, (err, files) => {
   if (err) {
     console.error(err);
     return;
@@ -18,7 +18,7 @@ fs.readdir(folderPath, (err, files) => {
 
   files.forEach((file) => {
     if (!themes.includes(file.replace(".png", ""))) {
-      fs.unlinkSync(folderPath + file);
+      fs.unlinkSync(imagesFolder + file);
       console.log(`Deleted: ${file}`);
     }
   });

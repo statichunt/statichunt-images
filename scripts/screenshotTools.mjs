@@ -2,6 +2,7 @@ import fs from "fs-extra";
 import ora from "ora";
 import path from "path";
 import puppeteer from "puppeteer";
+
 const spinner = ora("Loading");
 const imagesFolder = path.join(process.cwd(), "/tools");
 
