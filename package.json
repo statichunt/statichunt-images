@@ -1,0 +1,10 @@
+{
+  "name": "statichunt-images",
+  "description": "images for statichunt",
+  "version": "1.0.0",
+  "license": "MIT",
+  "author": "zeon.studio",
+  "scripts": {
+    "build": ""
+  }
+}
