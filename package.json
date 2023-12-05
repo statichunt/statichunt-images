@@ -5,6 +5,17 @@
   "license": "MIT",
   "author": "zeon.studio",
   "scripts": {
-    "build": ""
+    "build": "",
+    "update": "yarn ss-themes && yarn ss-tools && yarn ss-examples",
+    "ss-themes": "node scripts/screenshotThemes.mjs",
+    "ss-themes-clean": "node scripts/deleteObsoleteThemesImages.mjs",
+    "themes-clean": "node scripts/delete404DemoThemes.mjs",
+    "ss-tools": "node scripts/screenshotTools.mjs",
+    "ss-examples": "node scripts/screenshotExamples.mjs"
+  },
+  "devDependencies": {
+    "ora": "^7.0.1",
+    "puppeteer": "^21.5.2",
+    "tesseract.js": "^5.0.3"
   }
 }
