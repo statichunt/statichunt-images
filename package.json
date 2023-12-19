@@ -8,6 +8,7 @@
     "build": "",
     "update": "yarn ss-themes && yarn ss-tools && yarn ss-examples",
     "ss-themes": "node scripts/screenshotThemes.mjs",
+    "ss-themes-thumb": "node scripts/generateThemesThumbnails.mjs",
     "ss-themes-clean": "node scripts/deleteObsoleteThemesImages.mjs",
     "themes-clean": "node scripts/delete404DemoThemes.mjs",
     "ss-tools": "node scripts/screenshotTools.mjs",
