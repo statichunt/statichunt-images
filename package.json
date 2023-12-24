@@ -7,9 +7,9 @@
   "scripts": {
     "build": "",
     "update": "yarn ss-themes && yarn ss-tools && yarn ss-examples",
-    "ss-themes": "node scripts/screenshotThemes.mjs",
-    "ss-tools": "node scripts/screenshotTools.mjs",
-    "ss-examples": "node scripts/screenshotExamples.mjs",
+    "themes": "node scripts/screenshotThemes.mjs && yarn generate-themes-thumbs",
+    "tools": "node scripts/screenshotTools.mjs",
+    "examples": "node scripts/screenshotExamples.mjs",
     "generate-themes-thumbs": "node scripts/generateThemesThumbnails.mjs",
     "clean-themes": "node scripts/deleteObsoleteThemesImages.mjs",
     "remove-404-themes": "node scripts/delete404DemoThemes.mjs"
