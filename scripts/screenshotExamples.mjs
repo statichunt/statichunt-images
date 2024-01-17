@@ -11,7 +11,7 @@ const getExamples = await fetch("https://statichunt.com/data/examples.json")
   .then((response) => response.json())
   .catch((error) => console.error("Error:", error));
 
-const examples = getExamples.map((data) => ({
+const examples = await getExamples.map((data) => ({
   website: data.frontmatter.website,
   slug: data.slug,
 }));
