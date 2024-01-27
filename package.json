@@ -6,12 +6,13 @@
   "author": "zeon.studio",
   "scripts": {
     "build": "",
-    "update": "yarn themes && yarn generate-themes-thumbs && yarn tools && yarn examples",
-    "themes": "node scripts/screenshotThemes.mjs && yarn generate-themes-thumbs",
-    "tools": "node scripts/screenshotTools.mjs",
-    "examples": "node scripts/screenshotExamples.mjs",
-    "generate-themes-thumbs": "node scripts/generateThemesThumbnails.mjs",
+    "update": "yarn themes && yarn tools && yarn examples",
+    "themes": "node scripts/screenshotThemes.mjs && node scripts/generateThemesThumbnails.mjs",
+    "tools": "node scripts/screenshotTools.mjs && node scripts/generateToolsThumbnails.mjs",
+    "examples": "node scripts/screenshotExamples.mjs && node scripts/generateExamplesThumbnails.mjs",
     "clean-themes": "node scripts/deleteObsoleteThemesImages.mjs",
+    "clean-tools": "node scripts/deleteObsoleteToolsImages.mjs",
+    "clean-examples": "node scripts/deleteObsoleteExamplesImages.mjs",
     "remove-404-themes": "node scripts/delete404DemoThemes.mjs"
   },
   "devDependencies": {
