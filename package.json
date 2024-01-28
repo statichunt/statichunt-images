@@ -6,7 +6,7 @@
   "author": "zeon.studio",
   "scripts": {
     "build": "",
-    "update": "yarn themes && yarn tools && yarn examples",
+    "update": "yarn themes && yarn tools && yarn examples && yarn clean-themes && yarn clean-tools && yarn clean-examples",
     "themes": "node scripts/screenshotThemes.mjs && node scripts/generateThemesThumbnails.mjs",
     "tools": "node scripts/screenshotTools.mjs && node scripts/generateToolsThumbnails.mjs",
     "examples": "node scripts/screenshotExamples.mjs && node scripts/generateExamplesThumbnails.mjs",
