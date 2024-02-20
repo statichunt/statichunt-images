@@ -2,6 +2,7 @@ import fs from "fs-extra";
 import ora from "ora";
 import path from "path";
 import puppeteer from "puppeteer";
+// import themesJson from "../themes.json" assert { type: "json" };
 
 const spinner = ora("Loading");
 const imagesFolder = path.join(process.cwd(), "/themes");
