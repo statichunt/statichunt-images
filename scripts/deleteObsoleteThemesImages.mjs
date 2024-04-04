@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import themesJson from "../themes.json" assert { type: "json" };
 
 const imagesFolder = path.join(process.cwd(), "/themes/");
 const thumbnailsFolder = path.join(process.cwd(), "/themes/thumbnails/");
@@ -9,7 +10,7 @@ const getThemes = await fetch("https://statichunt.com/data/themes.json")
   .then((response) => response.json())
   .catch((error) => console.error("Error:", error));
 
-const themes = getThemes.map((data) => data.slug);
+const themes = themesJson.map((data) => data.slug);
 
 // delete obsolete images
 fs.readdir(imagesFolder, (err, files) => {
