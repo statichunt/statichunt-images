@@ -2,7 +2,7 @@ import fs from "fs-extra";
 import ora from "ora";
 import path from "path";
 import puppeteer from "puppeteer";
-import themesJson from "../themes.json" assert { type: "json" };
+// import themesJson from "../themes.json" assert { type: "json" };
 
 const spinner = ora("Loading");
 const imagesFolder = path.join(process.cwd(), "/themes");
@@ -12,7 +12,7 @@ const getThemes = await fetch("https://statichunt.com/data/themes.json")
   .then((response) => response.json())
   .catch((error) => console.error("Error:", error));
 
-const themes = await themesJson.map((data) => ({
+const themes = await getThemes.map((data) => ({
   demo: data.frontmatter.demo,
   slug: data.slug,
 }));
