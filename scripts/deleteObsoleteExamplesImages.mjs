@@ -9,7 +9,7 @@ const getExamples = await fetch("https://statichunt.com/data/examples.json")
   .then((response) => response.json())
   .catch((error) => console.error("Error:", error));
 
-const examples = getExamples.map((data) => data.slug);
+const examples = getExamples?.map((data) => data.slug);
 
 // delete obsolete images
 fs.readdir(imagesFolder, (err, files) => {

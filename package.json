@@ -18,7 +18,7 @@
   "devDependencies": {
     "ora": "^8.0.1",
     "puppeteer": "^22.9.0",
-    "sharp": "0.33.3",
+    "sharp": "0.33.4",
     "tesseract.js": "^5.1.0"
   }
 }

@@ -12,7 +12,7 @@ const getThemes = await fetch("https://statichunt.com/data/themes.json")
   .then((response) => response.json())
   .catch((error) => console.error("Error:", error));
 
-const themes = await getThemes.map((data) => ({
+const themes = await getThemes?.map((data) => ({
   demo: data.frontmatter.demo,
   slug: data.slug,
 }));

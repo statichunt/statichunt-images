@@ -11,7 +11,7 @@ const getTools = await fetch("https://statichunt.com/data/tools.json")
   .then((response) => response.json())
   .catch((error) => console.error("Error:", error));
 
-const tools = await getTools.map((data) => ({
+const tools = await getTools?.map((data) => ({
   website: data.frontmatter.website,
   slug: data.slug,
 }));
