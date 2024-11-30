@@ -4,9 +4,9 @@ import ora from "ora";
 import { createWorker } from "tesseract.js";
 const spinner = ora("Loading");
 
-const imagesFolder = "./public/themes";
-const contentFolder = "./content/themes";
+const imagesFolder = "./themes";
 const crawlerLogPath = "./crawler-log.json";
+const deleteLogPath = "./delete-log.json";
 const textsToDelete = [
   "The page you're looking for doesn't",
   "This page is no longer available",
@@ -18,7 +18,7 @@ const textsToDelete = [
   "Blocked due to security reason",
 ];
 
-// Check if the log file exists
+// Check if the crawler-log file exists
 fs.access(crawlerLogPath, fs.constants.F_OK, (err) => {
   if (err) {
     fs.writeFile(crawlerLogPath, JSON.stringify([]), "utf8", (err) => {
@@ -30,6 +30,19 @@ fs.access(crawlerLogPath, fs.constants.F_OK, (err) => {
   }
 });
 
+// check if the delete log file exists
+fs.access(deleteLogPath, fs.constants.F_OK, (err) => {
+  if (err) {
+    fs.writeFile(deleteLogPath, JSON.stringify([]), "utf8", (err) => {
+      if (err) {
+        console.error("Error creating file:", err);
+        return;
+      }
+    });
+  }
+});
+
+// process images
 async function processImages() {
   spinner.start("Checking Images");
   let files = await fsPromises.readdir(imagesFolder);
@@ -41,10 +54,6 @@ async function processImages() {
   for (const file of files) {
     spinner.text = `Checking ${file}`;
     const imagePath = `${imagesFolder}/${file}`;
-    const contentFilePath = `${contentFolder}/${file.replace(
-      /\.[^/.]+$/,
-      ".md",
-    )}`;
 
     // Read the crawler log file
     fs.readFile(crawlerLogPath, "utf8", (err, result) => {
@@ -77,13 +86,24 @@ async function processImages() {
 
       if (textsToDelete.some((phrase) => text.includes(phrase))) {
         await fsPromises.unlink(imagePath);
+        await fsPromises.unlink(imagePath);
 
-        // Delete corresponding theme in content folder
-        try {
-          await fsPromises.unlink(contentFilePath);
-        } catch (err) {
-          // Ignore errors if the file doesn't exist
-        }
+        // write the file name that needs to be deleted
+        const deleteLog = fs.readFileSync(deleteLogPath, "utf8");
+        const logs = JSON.parse(deleteLog);
+        logs.push(file);
+        const stringifyLogs = JSON.stringify(logs);
+
+        // Write the delete log to the file
+        fs.writeFile(deleteLogPath, stringifyLogs, "utf8", (err) => {
+          if (err) {
+            console.error("Error writing file:", err);
+            return;
+          }
+        });
+        console.log(`Deleted: ${file}`);
+      } else {
+        console.log(`Not Deleted: ${file}`);
       }
     } catch (err) {
       console.error("Error processing image:", err);
