@@ -7,31 +7,43 @@ import puppeteer from "puppeteer";
 const spinner = ora("Loading");
 const imagesFolder = path.join(process.cwd(), "/themes");
 
-// Fetch themes
+// fetch themes
 const getThemes = await fetch("https://statichunt.com/data/themes.json")
   .then((response) => response.json())
   .catch((error) => console.error("Error:", error));
 
-const themes = getThemes?.map((data) => ({
+const themes = await getThemes?.map((data) => ({
   demo: data.frontmatter.demo,
   slug: data.slug,
 }));
 
-async function captureScreenshot(browser, demo, slug, overwrite, updateLog) {
+async function captureScreenshot(demo, slug, overwrite) {
   const thumbnail = `${slug}.png`;
   const imagePath = path.join(imagesFolder, thumbnail);
   if (!overwrite && fs.existsSync(imagePath)) {
-    updateLog(`${slug}: Skipped`);
-    return;
+    return false;
   }
 
   try {
+    const browser = await puppeteer.launch({
+      args: [],
+      headless: "new",
+      executablePath:
+        process.platform === "win32"
+          ? "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe"
+          : process.platform === "linux"
+          ? "/usr/bin/google-chrome-stable"
+          : "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+    });
+
+    spinner.text = `${demo} => capturing`;
     const page = await browser.newPage();
     await page.setViewport({
       width: 1500,
       height: 1000,
     });
 
+    // Set a timeout of 10 seconds
     const timeout = 10000;
     const controller = new AbortController();
     const timer = setTimeout(() => {
@@ -41,12 +53,11 @@ async function captureScreenshot(browser, demo, slug, overwrite, updateLog) {
     try {
       await page.goto(demo, {
         waitUntil: "networkidle0",
-        signal: controller.signal,
+        signal: controller.signal, // abort the navigation if the timeout is reached
       });
     } catch {
       clearTimeout(timer);
-      await page.close();
-      updateLog(`${slug}: Timeout`);
+      await browser.close();
       throw new Error("Timeout");
     }
 
@@ -61,49 +72,28 @@ async function captureScreenshot(browser, demo, slug, overwrite, updateLog) {
     );
 
     await page.screenshot({ path: imagePath });
-    await page.close();
-    updateLog(`${slug}: Captured`);
+    await browser.close();
   } catch (error) {
-    updateLog(`${slug}: Failed`);
-    console.error(`Error capturing ${slug}:`, error);
+    spinner.text = `${demo} => failed capturing`;
+    console.error(error);
+
+    // Delete the theme
+    // fs.unlink(path.join(process.cwd(), `/content/themes/${slug}.md`), (err) => {
+    //   if (err) {
+    //     console.error("Error deleting file:", err);
+    //     return;
+    //   }
+    // });
+
+    return false;
   }
 }
 
 const generateScreenshots = async (themes, overwrite) => {
   spinner.start("Capturing Screenshots");
-
-  // Launch browser once
-  const browser = await puppeteer.launch({
-    headless: "new",
-    executablePath:
-      process.platform === "win32"
-        ? "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe"
-        : process.platform === "linux"
-        ? "/usr/bin/google-chrome-stable"
-        : "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
-  });
-
-  // Process themes in batches of 10 using shared browser
-  const batchSize = 10;
-  for (let i = 0; i < themes.length; i += batchSize) {
-    const batch = themes.slice(i, i + batchSize);
-    let logs = [];
-
-    const updateLog = (message) => {
-      logs.push(message);
-      spinner.text = `Capturing Screenshots:\n${logs.join("\n")}`;
-    };
-
-    await Promise.all(
-      batch.map((data) =>
-        captureScreenshot(browser, data.demo, data.slug, overwrite, updateLog)
-      )
-    );
-
-    logs = []; // Clear logs for the next batch
+  for (const data of themes) {
+    await captureScreenshot(data.demo, data.slug, overwrite);
   }
-
-  await browser.close();
   spinner.succeed("Success - Capturing Screenshots");
 };
 
