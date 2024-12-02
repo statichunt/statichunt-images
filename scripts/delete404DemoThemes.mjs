@@ -1,4 +1,3 @@
-import fs from "fs";
 import fsPromises from "fs/promises";
 import ora from "ora";
 import { createWorker } from "tesseract.js";
@@ -14,105 +13,96 @@ const textsToDelete = [
   "There isn't a GitHub Pages site here",
   "DEPLOYMENT_NOT_FOUND",
   "Site Not Found",
+  "Page Not Found",
   "Windows and installation",
   "Blocked due to security reason",
+  "Carbon Emission Verification",
+  "Advertise on Steaming Tv",
+  "There isn't a GitHub Pages site here.",
+  "The requested URL was not found on this server.",
 ];
 
-// Check if the crawler-log file exists
-fs.access(crawlerLogPath, fs.constants.F_OK, (err) => {
-  if (err) {
-    fs.writeFile(crawlerLogPath, JSON.stringify([]), "utf8", (err) => {
-      if (err) {
-        console.error("Error creating file:", err);
-        return;
-      }
-    });
+// Ensure log files exist
+async function ensureFileExists(filePath) {
+  try {
+    await fsPromises.access(filePath);
+  } catch {
+    await fsPromises.writeFile(filePath, JSON.stringify([]), "utf8");
   }
-});
+}
 
-// check if the delete log file exists
-fs.access(deleteLogPath, fs.constants.F_OK, (err) => {
-  if (err) {
-    fs.writeFile(deleteLogPath, JSON.stringify([]), "utf8", (err) => {
-      if (err) {
-        console.error("Error creating file:", err);
-        return;
-      }
-    });
+// Read JSON from a file
+async function readJsonFile(filePath) {
+  try {
+    const content = await fsPromises.readFile(filePath, "utf8");
+    return JSON.parse(content);
+  } catch {
+    return [];
   }
-});
+}
 
-// process images
+// Write JSON to a file
+async function writeJsonFile(filePath, data) {
+  await fsPromises.writeFile(filePath, JSON.stringify(data, null, 2), "utf8");
+}
+
+// Process images in batches
 async function processImages() {
+  await ensureFileExists(crawlerLogPath);
+  await ensureFileExists(deleteLogPath);
+
   spinner.start("Checking Images");
   let files = await fsPromises.readdir(imagesFolder);
 
-  // filter crawler log files from files
-  const crawlerLog = fs.readFileSync(crawlerLogPath, "utf8");
+  // Filter out already processed files
+  const crawlerLog = await readJsonFile(crawlerLogPath);
   files = files.filter((file) => !crawlerLog.includes(file));
 
-  for (const file of files) {
-    spinner.text = `Checking ${file}`;
-    const imagePath = `${imagesFolder}/${file}`;
+  const batchSize = 10;
+  for (let i = 0; i < files.length; i += batchSize) {
+    const batch = files.slice(i, i + batchSize);
+    spinner.text = `Processing batch ${Math.floor(i / batchSize) + 1}`;
 
-    // Read the crawler log file
-    fs.readFile(crawlerLogPath, "utf8", (err, result) => {
-      if (err) {
-        console.log("Error reading file from disk:", err);
-        return;
-      }
-      try {
-        const logs = JSON.parse(result);
-        logs.push(file);
-        const stringifyLogs = JSON.stringify(logs);
+    await Promise.all(
+      batch.map(async (file) => {
+        const imagePath = `${imagesFolder}/${file}`;
+        try {
+          const worker = await createWorker();
 
-        // Write the crawler log to the file
-        fs.writeFile(crawlerLogPath, stringifyLogs, "utf8", (err) => {
-          if (err) {
-            console.error("Error writing file:", err);
-            return;
+          const {
+            data: { text },
+          } = await worker.recognize(imagePath);
+
+          await worker.terminate();
+
+          // Check if text matches deletion criteria
+          if (textsToDelete.some((phrase) => text.includes(phrase))) {
+            await fsPromises.unlink(imagePath);
+
+            // Update delete log
+            const deleteLog = await readJsonFile(deleteLogPath);
+            deleteLog.push(file);
+            await writeJsonFile(deleteLogPath, deleteLog);
+
+            console.log(` Delete: ${file}`);
+          } else {
+            console.log(` Keep: ${file}`);
           }
-        });
-      } catch (err) {
-        console.log("Error parsing JSON string:", err);
-      }
-    });
 
-    try {
-      const worker = await createWorker("eng");
-      const {
-        data: { text },
-      } = await worker.recognize(imagePath);
-
-      if (textsToDelete.some((phrase) => text.includes(phrase))) {
-        await fsPromises.unlink(imagePath);
-        await fsPromises.unlink(imagePath);
-
-        // write the file name that needs to be deleted
-        const deleteLog = fs.readFileSync(deleteLogPath, "utf8");
-        const logs = JSON.parse(deleteLog);
-        logs.push(file);
-        const stringifyLogs = JSON.stringify(logs);
-
-        // Write the delete log to the file
-        fs.writeFile(deleteLogPath, stringifyLogs, "utf8", (err) => {
-          if (err) {
-            console.error("Error writing file:", err);
-            return;
-          }
-        });
-        console.log(`Deleted: ${file}`);
-      } else {
-        console.log(`Not Deleted: ${file}`);
-      }
-    } catch (err) {
-      console.error("Error processing image:", err);
-    }
+          // Update crawler log
+          crawlerLog.push(file);
+          await writeJsonFile(crawlerLogPath, crawlerLog);
+        } catch (err) {
+          console.error(`Error processing ${file}:`, err);
+        }
+      })
+    );
   }
-  spinner.succeed("Success - Checking Images");
+
+  spinner.succeed("Success - Images Checked");
 }
 
-// Wait for 1 second before starting the process
+// Start processing after a delay
 setTimeout(() => {
   processImages().catch((err) => {
     console.error("Error processing images:", err);
