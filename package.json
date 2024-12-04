@@ -16,8 +16,8 @@
     "remove-404-themes": "node scripts/delete404DemoThemes.mjs"
   },
   "devDependencies": {
-    "ora": "^8.1.0",
-    "puppeteer": "^23.2.1",
+    "ora": "^8.1.1",
+    "puppeteer": "^23.10.0",
     "sharp": "0.33.5",
     "tesseract.js": "^5.1.1"
   },

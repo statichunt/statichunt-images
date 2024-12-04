@@ -43,25 +43,13 @@ async function captureScreenshot(demo, slug, overwrite) {
       height: 1000,
     });
 
-    // Set a timeout of 10 seconds
-    const timeout = 10000;
-    const controller = new AbortController();
-    const timer = setTimeout(() => {
-      controller.abort();
-    }, timeout);
+    await page.goto(demo, {
+      waitUntil: "networkidle0",
+      timeout: 60000, // 30 seconds timeout for loading
+    });
 
-    try {
-      await page.goto(demo, {
-        waitUntil: "networkidle0",
-        signal: controller.signal, // abort the navigation if the timeout is reached
-      });
-    } catch {
-      clearTimeout(timer);
-      await browser.close();
-      throw new Error("Timeout");
-    }
-
-    clearTimeout(timer);
+    // Wait for animations or elements to load
+    await new Promise((resolve) => setTimeout(resolve, 10000));
 
     // Remove cookie banner
     const cookieBox = "[class*='cookie']";
@@ -76,14 +64,6 @@ async function captureScreenshot(demo, slug, overwrite) {
   } catch (error) {
     spinner.text = `${demo} => failed capturing`;
     console.error(error);
-
-    // Delete the theme
-    // fs.unlink(path.join(process.cwd(), `/content/themes/${slug}.md`), (err) => {
-    //   if (err) {
-    //     console.error("Error deleting file:", err);
-    //     return;
-    //   }
-    // });
 
     return false;
   }
