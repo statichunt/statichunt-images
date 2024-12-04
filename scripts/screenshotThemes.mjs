@@ -45,11 +45,11 @@ async function captureScreenshot(demo, slug, overwrite) {
 
     await page.goto(demo, {
       waitUntil: "networkidle0",
-      timeout: 60000, // 30 seconds timeout for loading
+      timeout: 10000, // 10 seconds timeout for loading
     });
 
     // Wait for animations or elements to load
-    await new Promise((resolve) => setTimeout(resolve, 10000));
+    await new Promise((resolve) => setTimeout(resolve, 0));
 
     // Remove cookie banner
     const cookieBox = "[class*='cookie']";
