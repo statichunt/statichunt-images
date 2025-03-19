@@ -12,7 +12,7 @@ const textsToDelete = [
   "This page isn't working",
   "There isn't a GitHub Pages site here",
   "DEPLOYMENT_NOT_FOUND",
-  "Site Not Found",
+  "Site not found",
   "Page Not Found",
   "Windows and installation",
   "Blocked due to security reason",
@@ -20,6 +20,8 @@ const textsToDelete = [
   "Advertise on Steaming Tv",
   "There isn't a GitHub Pages site here.",
   "The requested URL was not found on this server.",
+  "The domain has expired",
+  "Related searches",
 ];
 
 // Ensure log files exist
