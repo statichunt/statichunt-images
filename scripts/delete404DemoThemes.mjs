@@ -29,6 +29,7 @@ const textsToDelete = [
   "The domain has expired",
   "Related searches",
   "404 Error",
+  "There's nothing here",
 ];
 
 // === Helper Functions ===
