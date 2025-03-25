@@ -7,12 +7,12 @@ const spinner = ora("Loading");
 const imagesFolder = path.join(process.cwd(), "/themes");
 
 // local themes
-const themesData = await fs.readJSON(path.join(process.cwd(), "themes.json"));
+// const themesData = await fs.readJSON(path.join(process.cwd(), "themes.json"));
 
 // fetch themes
-// const themesData = await fetch("https://statichunt.com/data/themes.json")
-//   .then((response) => response.json())
-//   .catch((error) => console.error("Error:", error));
+const themesData = await fetch("https://statichunt.com/data/themes.json")
+  .then((response) => response.json())
+  .catch((error) => console.error("Error:", error));
 
 const themes = await themesData.map((data) => ({
   demo: data.frontmatter.demo,
