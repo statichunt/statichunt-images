@@ -2,17 +2,19 @@ import fs from "fs-extra";
 import ora from "ora";
 import path from "path";
 import puppeteer from "puppeteer";
-// import getThemes from "../themes.json" assert { type: "json" };
 
 const spinner = ora("Loading");
 const imagesFolder = path.join(process.cwd(), "/themes");
 
-// fetch themes
-const getThemes = await fetch("https://statichunt.com/data/themes.json")
-  .then((response) => response.json())
-  .catch((error) => console.error("Error:", error));
+// local themes
+const themesData = await fs.readJSON(path.join(process.cwd(), "themes.json"));
 
-const themes = await getThemes?.map((data) => ({
+// fetch themes
+// const themesData = await fetch("https://statichunt.com/data/themes.json")
+//   .then((response) => response.json())
+//   .catch((error) => console.error("Error:", error));
+
+const themes = await themesData.map((data) => ({
   demo: data.frontmatter.demo,
   slug: data.slug,
 }));
@@ -45,7 +47,7 @@ async function captureScreenshot(demo, slug, overwrite) {
 
     await page.goto(demo, {
       waitUntil: "networkidle0",
-      timeout: 60000, // 60 seconds timeout for loading
+      timeout: 10000, // 60 seconds timeout for loading
     });
 
     // Wait for animations or elements to load
@@ -63,7 +65,10 @@ async function captureScreenshot(demo, slug, overwrite) {
     await browser.close();
   } catch (error) {
     spinner.text = `${demo} => failed capturing`;
-    console.error(error);
+
+    // write failed urls to a file
+    const failedUrls = path.join(process.cwd(), "failedUrls.txt");
+    fs.appendFileSync(failedUrls, `${demo}\n`);
 
     return false;
   }

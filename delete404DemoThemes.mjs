@@ -22,6 +22,7 @@ const textsToDelete = [
   "The requested URL was not found on this server.",
   "The domain has expired",
   "Related searches",
+  "404 Error",
 ];
 
 // Ensure log files exist
