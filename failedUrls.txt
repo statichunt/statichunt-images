@@ -1,0 +1,4 @@
+https://materialpro-nuxtjs-main.netlify.app/dashboards/analytical
+https://spike-nuxtjs-free.netlify.app/
+https://spike-nuxtjs-pro-main.netlify.app/
+https://spike-vue-free.netlify.app/
